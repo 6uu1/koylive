@@ -3,7 +3,7 @@ name: Koyeb keepalive
 on:
   schedule:
     # UTC (国内 UTC+8)
-    - cron: '1 8 * * *'
+    - cron: '1 6 * * *'
   workflow_dispatch:
 
 jobs:
@@ -23,3 +23,4 @@ jobs:
         KOY_EB: ${{ secrets.KOY_EB }}
       run: |
         python3 koyeb.py
+    - uses: gautamkrishnar/keepalive-workflow@v1
