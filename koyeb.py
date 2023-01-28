@@ -5,15 +5,22 @@ import requests
 import os
 # from sendNotify import send
 import time
+import datetime
 
 List = []
+
+def get_time_stamp(result):
+    utct_date = datetime.datetime.strptime(result, "%Y-%m-%dT%H:%M:%S.%f%z")
+    local_date = utct_date + datetime.timedelta(hours=8)
+    local_date_srt = datetime.datetime.strftime(local_date, "%Y-%m-%d %H:%M:%S")
+    return local_date_srt
 
 
 def login(usr, pwd):
     session = requests.Session()
     login_url = 'https://app.koyeb.com/v1/account/login'
     headers = {
-    	'origin': 'https://app.koyeb.com',
+        'origin': 'https://app.koyeb.com',
         'referer': 'https://app.koyeb.com/auth/signin',
         'content-type': 'application/json',
         'user-agent': 'Mozilla/5.0 (Linux; Android 10; PBEM00) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.52 Mobile Safari/537.36'
@@ -38,9 +45,29 @@ def login(usr, pwd):
             info = resp.json()
             List.append(f"账号`{info.get('user').get('name')}`登陆成功")
             List.append(f"ID：{info.get('user').get('id')}")
-            List.append(f"注册日期：{info.get('user').get('created_at')}")
+            List.append(f"注册日期：{get_time_stamp(info.get('user').get('created_at'))}")
+            lastlogin_url = 'https://app.koyeb.com/v1/activities?offset=0&limit=2'
+            lastlogin_head = {
+                'authorization': f'Bearer {token}',
+                'referer': 'https://app.koyeb.com/activity',
+                'user-agent': 'Mozilla/5.0 (Linux; Android 10; PBEM00) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.52 Mobile Safari/537.36'
+
+            }
+            time.sleep(7)
+            resg = session.get(lastlogin_url, headers=lastlogin_head)
+            if resg.status_code == 200:
+                lastlogin = resg.json()
+                if lastlogin.get('count') > 1:
+                    List.append(f"上次登录日期：{get_time_stamp(lastlogin.get('activities')[1].get('created_at'))}")
+                List.append(f"当前登录日期：{get_time_stamp(lastlogin.get('activities')[0].get('created_at'))}")
+                List.append(f"总登录次数：{lastlogin.get('count')}次")
+            else:
+                print(resg.text)
+        else:
+            print(resp.text)
     else:
         List.append('账号登陆失败: 账号或密码错误')
+        List.append(res.text)
 
 
 if __name__ == '__main__':
