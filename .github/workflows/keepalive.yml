@@ -16,5 +16,7 @@ jobs:
       run: |
         pip3 install -r requirements.txt
     - name: Running keepalive
+      env:
+        KOY_EB: ${{ secrets.KOY_EB }}
       run: |
         python3 koyeb.py
