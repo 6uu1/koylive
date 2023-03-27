@@ -23,4 +23,4 @@ jobs:
         KOY_EB: ${{ secrets.KOY_EB }}
       run: |
         python3 koyeb.py
-    - uses: gautamkrishnar/keepalive-workflow@v1
+    #- uses: gautamkrishnar/keepalive-workflow@v1
